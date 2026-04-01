@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:http/http.dart' as http;
 const version = '0.0.1';
 
 void printUsage() {
@@ -6,6 +7,7 @@ void printUsage() {
     "The following commands are valid: 'help', 'version', 'search <ARTICLE-TITLE>'"
   );
 }
+
 
 void main(List<String> arguments) {
   if (arguments.isEmpty || arguments.first == 'help') {
