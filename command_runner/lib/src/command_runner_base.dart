@@ -6,13 +6,20 @@ import 'arguments.dart';
 import 'exceptions.dart';
 
 class CommandRunner {
-  CommandRunner({this.onError});
+  // Конструктор теперь принимает оба обратных вызова
+  CommandRunner({this.onOutput, this.onError});
 
   final Map<String, Command> _commands = <String, Command>{};
 
   UnmodifiableSetView<Command> get commands =>
       UnmodifiableSetView<Command>(<Command>{..._commands.values});
 
+  /// Если задан, этот метод используется для вывода данных.
+  /// Позволяет переопределить стандартный print, например для
+  /// покадровой печати с задержкой.
+  FutureOr<void> Function(String)? onOutput;
+
+  /// Обработчик ошибок
   FutureOr<void> Function(Object)? onError;
 
   Future<void> run(List<String> input) async {
@@ -20,7 +27,12 @@ class CommandRunner {
       final ArgResults results = parse(input);
       if (results.command != null) {
         Object? output = await results.command!.run(results);
-        print(output.toString());
+        // Используем onOutput, если он задан, иначе стандартный print
+        if (onOutput != null) {
+          await onOutput!(output.toString());
+        } else {
+          print(output.toString());
+        }
       }
     } on Exception catch (exception) {
       if (onError != null) {
@@ -40,7 +52,6 @@ class CommandRunner {
     ArgResults results = ArgResults();
     if (input.isEmpty) return results;
 
-    // Проверка: первый аргумент – команда
     if (_commands.containsKey(input.first)) {
       results.command = _commands[input.first];
       input = input.sublist(1);
@@ -52,7 +63,6 @@ class CommandRunner {
       );
     }
 
-    // Проверка: только одна команда
     if (results.command != null &&
         input.isNotEmpty &&
         _commands.containsKey(input.first)) {
@@ -63,7 +73,6 @@ class CommandRunner {
       );
     }
 
-    // Обработка опций
     Map<Option, Object?> inputOptions = {};
     int i = 0;
     while (i < input.length) {
