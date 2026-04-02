@@ -1,0 +1,2 @@
+[2025-02-20 16:23:45.678 - errors] WARNING: HttpException: HttpException: , uri = https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=blahblahblahblah
+[2025-02-20 16:23:45.678 - errors] INFO: Usage: dart bin/cli.dart <command> [commandArg?] [...options?]
